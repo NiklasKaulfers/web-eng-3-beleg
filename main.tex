@@ -23,13 +23,13 @@
 % -------------------------------------------------------
 % Titelseiten-Informationen (Diese Abändern)
 % -------------------------------------------------------
-\title{Softwaretests in dem Vier-Gewinnt-Projekt der IIb23}
+\title{Erstellung einer Todo App mit React und AWS CDK}
 
 % Art der Arbeit + Studiengang
 \newcommand{\arbeitstyp}{Beleg}
 % Modul / Lehrveranstaltung + Dozent:innen
-\newcommand{\modul}{Modul / Lehrveranstaltung: Grundlagen des Softwaretestens\\
-Dozent: Prof.\ Dr.\ Matthias Längrich}
+\newcommand{\modul}{Modul / Lehrveranstaltung: WebWeb Engineering 3\\
+Dozent: Christopher Hilgner}
 % Hochschule + Fakultät
 \newcommand{\hochschule}{
 \includegraphics[height=2.5cm]{LOGO_HSZG_SUBLINE_GRANIT.png}\\[5mm]
@@ -102,9 +102,33 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
 
 
 \chapter{Einleitung}
-\section{Ja ja}
-\subsection{Nein nein}
+    Ein durchaus häufig erstelltes Projekt in der Softwareentwicklung ist eine Todo-App.
+    Anhand solcher können grundlegende Kenntnisse der Entwickler zur jeweiligen Umgebung gezeigt werden.
+    Im Verlauf dieser Arbeit wird der Entwicklungsprozess einer solchen App im Serverless Kontext mit einem React Frontend erläutert.
 
+\chapter{Tech Stack}
+\section{Backend}
+    Das Backend besteht vollständig aus AWS Servicen.
+    Um genau zu sein ApiGateway, Lambda, DynamoDB und Cognito.
+    Diese haben jeweils eigene Aufgaben.
+    So ist ApiGateway verantwortlich dafür, eine RestAPI zur Verfügung zu stellen.
+    Alle Endpunkte der Anwendung sind innerhalb dieser API zu finden.
+    Der Service Cognito schützt die Endpunkte, in dem er nur verifizierten Nutzern den Zugriff auf die API gestattet.
+    Ohne Verifizierung hat der Nutzer des Frontends keinen Zugriff auf die API Endpunkte.
+    Lambdas stellen Funktionen im Serverless Kontext da.
+    In diesen kann die Logik der Anwendung mit eigenem Code definiert werden.
+    Innerhalb der hier behandelten Anwendung wird die gesamte Logik in Typescript und mittels Nodejs geschrieben.
+    Für persistenz sorgt DynamoDB, die NoSQL Datenbank von AWS.\@
+\section{Frontend}
+    Um mit dem Backend zu interagieren wird ein React Frontend verwendet.
+    Mit React können Single Page Applications (SPAs) erstellt werden.
+    Eine solche SPA besteht aus mehreren Komponenten, welche individuell, voneinander unabhängig ausgeführt werden können.
+    Dieses nutzt für styling \textit{Tailwindcss} und \textit{MUI}.\@
+    Tailwind stellt eine Sammlung an css Code da, welcher im Code einfach durch HTML Klassen genutzt werden kann.
+    MUI hingegen ist eine Komponenten Bibliothek für React. 
+    Zusammen sorgen MUI und Tailwind für ein anschauliches Erscheinungsbild.\\
+    Für Nutzerverifzierung im Frontend wird \textit{react oidc} genutzt.
+    
 
 \chapter{Fazit}
 
