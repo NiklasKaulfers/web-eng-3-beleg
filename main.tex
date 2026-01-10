@@ -104,7 +104,15 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
 \chapter{Einleitung}
     Ein durchaus häufig erstelltes Projekt in der Softwareentwicklung ist eine Todo-App.
     Anhand solcher können grundlegende Kenntnisse der Entwickler zur jeweiligen Umgebung gezeigt werden.
-    Im Verlauf dieser Arbeit wird der Entwicklungsprozess einer solchen App im Serverless Kontext mit einem React Frontend erläutert.
+    Im Verlauf dieser Arbeit wird der Entwicklungsprozess einer solchen App im Serverless Kontext mit einem React Frontend erläutert.\\
+    Hierzu entstehen Einblicke in den technischen Aufbau der Anwendung.
+    Auch die genaue Komposition der Endpunkte und einige Codeabschnitte werden betrachtet.
+\section{Serverless}
+    Um den genauen Aufbau dieser Anwendung zu verstehen, muss der Leser vorkenntnisse im Bereich des \textit{Cloud Computings} und \textit{Serverless} haben. 
+    Serverless bezieht sich auf Softwareanwendungen, welche in der Cloud veröffentlicht werden, der Entwickler sich jedoch nicht um den tieferen Aufbau des Servers kümmern muss.
+    So ist der Begriff Serverless durchaus irrführend.
+    Server existieren, werden jedoch von dem Hyperscaler, in diesem Fall AWS, verwaltet.
+    Viele Service wie AWS Lambda oder AWS DynamoDB fallen in die Kategorie von Serverless.
 
 \chapter{Tech Stack}
 \section{Backend}
@@ -127,8 +135,26 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Tailwind stellt eine Sammlung an css Code da, welcher im Code einfach durch HTML Klassen genutzt werden kann.
     MUI hingegen ist eine Komponenten Bibliothek für React. 
     Zusammen sorgen MUI und Tailwind für ein anschauliches Erscheinungsbild.\\
-    Für Nutzerverifzierung im Frontend wird \textit{react oidc} genutzt.
-    
+    Für Nutzerverifizierung im Frontend wird \textit{react oidc} genutzt.
+    Gemeinsam mit einem von AWS bereitgestellten Login-Bildschirm sorgt diese Bibliothek für eine Absicherung der Anwendung.
+\section{Entwicklungsumgebung}
+    Die gesamte Anwendung wurde im Umfeld von \textit{IntelliJ IDEA} erstellt.
+    Als Programmiersprache wird ausschließlich \textit{Typescript} verwendet, für Frontend, Backend und Infrastruktur.
+    Um die Anwendung ordentlich zur Verfügung zu stellen wird das Backend über AWS CDK erstellt.
+    Dies ist ein Infrastructure as Code (IaC) Tool für AWS.\@
+    In AWS CDK kann ein \textit{Cloudformation Stack} mittels einer Programmiersprache definiert werden.
+    Dieser Stack stellt ein Abbild der zu erwartenden Infrastruktur innerhalb der AWS Cloud da.
+    Mittels dieses Stacks werden die einzelnen Serverless Service miteinander verknüpft.
+    Auch werden hier Zugriffsrechte mit AWS IAM definiert.
+
+\chapter{Implementierung}
+\section{Endpunkte}
+
+\section{Beispiel: attach}
+\begin{figure}
+\includegraphics[height=10cm]{ToDoAppArchitektur.drawio.png}\label{gph:attach}
+\caption{Ablauf des Hinzufügens eines Todos zu einer Liste}
+\end{figure}
 
 \chapter{Fazit}
 
