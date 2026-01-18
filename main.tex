@@ -6,6 +6,7 @@
 \usepackage{graphicx,wrapfig,lipsum}
 \usepackage{geometry}
 \usepackage{minted}
+\usepackage{listings}
 \usepackage{xcolor}
 \usepackage{csquotes}
 \usepackage{dirtree}
@@ -18,6 +19,20 @@
 \addbibresource{main.bib}
 \geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 
+\lstdefinelanguage{typescript}{
+  keywords={class, constructor, function, return, if, else, let, const, var, export, import, extends, implements, private, public, protected, static, readonly, async, await, new, try, catch, throw},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  keywordstyle=\color{blue}\bfseries,
+  identifierstyle=\color{black},
+  stringstyle=\color{red},
+  commentstyle=\color{gray}\itshape,
+  morekeywords={type, interface, from, of},
+}
 
 
 % -------------------------------------------------------
@@ -147,8 +162,48 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Mittels dieses Stacks werden die einzelnen Serverless Service miteinander verknüpft.
     Auch werden hier Zugriffsrechte mit AWS IAM definiert.
 
+\chapter{Aufbau und Architektur}
+    Die Anwendung stellt eine Todo-App da.
+    In dieser kann ein Nutzer eigene Todos erstellen.
+    Ein Todo besteht aus einem Titel, einer Beschreibung, einem Boolean-Wert und einer eindeutigen ID.\@
+    Zudem einen Verweis auf in welche Listen sich dieses Todo befindet.
+    Auch die Listen haben einen Verweis auf alle Todos, welche sich in dieser Liste befinden.
+    Listen und Todos haben Methoden, um diese mit neuen Werten zu überschreiben.
+    Auch besteht die Möglichkeit sie zu löschen.
+    Man kann einzelne Parameter Updaten, hier ist der Verweis auf die jeweilige andere Liste jedoch nicht funktional.
+    Das liegt daran, dass es sich bei der Datenbank nicht um eine relationale Datenbank handelt.
+    Entsprechende Logik zu den Relationen muss somit in der Logik eingebaut werden.
 \chapter{Implementierung}
-\section{Endpunkte}
+    Die Entwicklung fand in zwei alleinstehenden Projekten statt -- dem Backend und dem Frontend.
+    Vor allem von Bedeutung ist das Backend.
+    Dort wird die Logik definiert.
+    Das Backend besteht aus einem AWS CDK Projekt.
+    In diesem werden verschiedene \textit{Constructs} verwendet.
+    Ein Construct definiert den Rahmen in welchem eine Komponente verwendet wird und ermöglicht so Objektorientiert Programmierung (OOP).
+    In Aws gibt es 3 Level von Constructs, nämlich L1, L2 und L3.
+    Diese definieren die Herkunft und Komplexität des Constructs.
+    Die grundlegende Version sind L1 Constructs, diese stellen eins zu eins ein Abbild der Konfiguration für Cloudformation da.
+    Hingegen sind L2 Ressourcen bereits angepasst von AWS, um sinnvoll und ohne zu viel Arbeit verwendet werden zu können.
+    Mit L3 Ressourcen werden mehrere Ressourcen erstellt, welche sinnvoll miteinander interagieren\footfullcite{aws_cdk_constructs}.
+    Das untenstehende Construct für ApiGateway ist ein in diesem Projekt verwendetes L3 Construct, in dem die verschiedenen Endpunkte, Definitionen für SwaggerIO und Integrationen definiert sind.\\
+    Auch werden in diesen Constructs die Trust-Relationen erstellt.
+    Diese werden vom Service IAM genutzt, um Servicen Zugriff zu anderen Servicen zu erlauben.
+    So hat ApiGateway ohne IAM Rollen nicht die nötigen Recht, um die Lambdafunktion mit der Entsprechenden Logik auszuführen.
+    
+    \begin{lstlisting}[language=typescript, numbers=left, frame=single, basicstyle=\small\ttfamily]
+export class ApiGatewayConstruct extends Construct {
+    private readonly props: ApiGatewayProps;
+    private readonly _restApi: RestApi;
+
+    constructor(scope: Construct, id: string, props: ApiGatewayProps) {
+        super(scope, id);
+        this.props = props;
+        // ...
+    }
+}
+    \end{lstlisting}
+
+    \section{Endpunkte}
     Alle Funktionen dieser Anwendung sind mit eigenen Endpunkten im Backend ausführbar.
 \section{Beispiel: attach}
 \begin{figure}
