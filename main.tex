@@ -189,8 +189,9 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Auch werden in diesen Constructs die Trust-Relationen erstellt.
     Diese werden vom Service IAM genutzt, um Servicen Zugriff zu anderen Servicen zu erlauben.
     So hat ApiGateway ohne IAM Rollen nicht die nötigen Recht, um die Lambdafunktion mit der Entsprechenden Logik auszuführen.
-    
-    \begin{lstlisting}[language=typescript, numbers=left, frame=single, basicstyle=\small\ttfamily]
+    \begin{figure}[!h]
+        \caption{Beispiel eines L3 Constructs aus dem Projekt}
+        \begin{lstlisting}[language=typescript, numbers=left, frame=single, basicstyle=\small\ttfamily]
 export class ApiGatewayConstruct extends Construct {
     private readonly props: ApiGatewayProps;
     private readonly _restApi: RestApi;
@@ -201,7 +202,9 @@ export class ApiGatewayConstruct extends Construct {
         // ...
     }
 }
-    \end{lstlisting}
+        \end{lstlisting}       
+    \end{figure}
+
 
     \section{Endpunkte}
     Alle Funktionen dieser Anwendung sind mit eigenen Endpunkten im Backend ausführbar.
