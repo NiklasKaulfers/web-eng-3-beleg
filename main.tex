@@ -15,7 +15,7 @@
 \usepackage{makecell}
 \usepackage{array}
 \usepackage[toc,page]{appendix}
-\usepackage[backend=biber,style=ieee]{biblatex}  % or style=numeric, authoryear, etc.
+\usepackage[backend=biber,style=ieee]{biblatex}
 \addbibresource{main.bib}
 \geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 
@@ -190,7 +190,6 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Diese werden vom Service IAM genutzt, um Servicen Zugriff zu anderen Servicen zu erlauben.
     So hat ApiGateway ohne IAM Rollen nicht die nötigen Recht, um die Lambdafunktion mit der Entsprechenden Logik auszuführen.
     \begin{figure}[!h]
-        \caption{Beispiel eines L3 Constructs aus dem Projekt}
         \begin{lstlisting}[language=typescript, numbers=left, frame=single, basicstyle=\small\ttfamily]
 export class ApiGatewayConstruct extends Construct {
     private readonly props: ApiGatewayProps;
@@ -202,18 +201,63 @@ export class ApiGatewayConstruct extends Construct {
         // ...
     }
 }
-        \end{lstlisting}       
-    \end{figure}
-
+        \end{lstlisting}
+        \caption{Beispiel eines L3 Constructs aus dem Projekt}       
+    \end{figure}\\
+    Viele dieser Constructs stellt AWS selber zur Verfügung, jedoch kann der Nutzer eigene erstellen. 
+    Dies geschieht, indem eine Klasse mit der Klasse \textit{Construct} erweitert wird.
+    Mittels Benennung über den Parameter \textit{id} lässt sich ein solches Construct leichter Debuggen.
+    So sind zusammenhänge besser ersichtlich, falls es während des Deploys zu einem Error kommt.
+    Als Error wird in der Konsole das verantwortliche Construct ausgegeben.
+    Auch in der AWS Konsole (dem GUI von AWS) kann auf der Seite von Cloudformation das Construct mit dem Error genauer betrachtet werden.
+    Dort ist von AWS auch ein vermutlicher \textit{root cause} angegeben.
 
     \section{Endpunkte}
     Alle Funktionen dieser Anwendung sind mit eigenen Endpunkten im Backend ausführbar.
+    Da die gesamte Logik auf Lambdafunktionen basiert erfolgen Lambdaintegrationen.
+    Mittels dieser kann der Rückgabewert der Lambdafunktion direkt als Rückgabewert des Api-Endpunkts verwendet werden.
+    Ein öffentlich ausführbarer Endpunkt muss innerhalb von AWS als eine \textit{Stage} erstellt werden.
+    Erst dann kann er über eine URL aufgerufen werden.
+    Innerhalb des Codes ist dies durch das Construct \textit{Deployment} geregelt.
+    In diesem wird die Stage \textit{prod} erstellt.
+    Alle Kommunikation mit diesem Endpunkt gelingt nun über \texttt{Basis-URL + '/prod'}.
+    Mittels \textit{Model} werden die erlaubten Rückgabewerte und die Dokumentation definiert.
+    Diese kann anschließend innerhalb der AWS-Konsole als SwaggerIO JSON exportiert werden.
+    Eine solche Datei liegt in der Root des Projekts.
+    Sie kann mittels Preview oder mittels OpenAPI-Generator in IntelliJ betrachtet werden.
+    Um best practices zu Folgen ist Cors aktiviert. 
+    Zugriff auf die API kann von http://localhost:5173 und der Frontend-URL erfolgen.
+    Alle Endpunkte sind zudem mittels eines \textit{Cognito Authorizers} geschützt.
+    \section{Logik}
+    Zum publishen von Lambdafunktionen, welche die Logik beinhalten, wird das Construct \textit{NodeJsFunktion} genutzt.
+    Dieses erlaubt bundeling von Code und Runtime-Definitionen.
+    Auch besteht die Möglichkeit eine NodeJsFunktion direkt mit Typescript in Aws zu integrieren, hierbei kann die Kompilierung sowohl mittels Ressourcen in der Cloud, als auch lokal, ausgeführt werden.
+    Im Gegensatz dazu muss in diesem Projekt nach einer Abänderung der Lambdafunktion diese manuell kompiliert werden.
+    Die Funktionen erhalten eine Rolle mit sehr großzügigen Rechten, diese müssen im Entwicklungsverlauf noch beschränkt werden.\\
+    Die Logik ist auch für entsprechende Datenbankoperationen zuständig.
+    Grund hierfür ist die NoSQL Datenbank DynamoDB.\@
+
 \section{Beispiel: attach}
-\begin{figure}
+\begin{figure}[!h]
 \includegraphics[height=10cm]{ToDoAppArchitektur.drawio.png}\label{gph:attach}
 \caption{Ablauf des Hinzufügens eines Todos zu einer Liste}
 \end{figure}
 
+\chapter{Building}
+    Da das Projekt für AWS ausgelegt ist, ist lokales Building nicht empfehlenswert.
+    Was ist benötigt, um dieses Projekt zu nutzen?\\
+    Ein AWS Account mit CLI-Zugriff.
+    Diesen kann man auf der Webseite von AWS erstellen.
+    Jedoch gelangt man vorerst in den Root-Account.
+    Es ist zu empfehlen, einen Nutzeraccount beim Service IAM zu erstellen.
+    Über diesen besteht die Möglichkeit, Access-Token für die CLI zu kreieren.
+    Mittels des Tokens kann über das \textit{AWS CLI Tool} (download via npm) Zugriff auf AWS Ressourcen erstellt werden.\\
+    Da mit AWS CDK gearbeitet wird muss auch dieses als CLI Tool installiert werden.
+    Das Kommando \textit{cdk deploy} kann anschließend genutzt werden, um den Stack auf AWS zu deployen.\\
+    Das Frontend kann ohne ein eigenes Backend verwendet werden.
+    Hierfür müssen die Environment-Variablen gesetzt werden.
+    Diese sind: \texttt{VITE\_API\_URL} und \texttt{VITE\_REDIRECT\_URL}.
+    Mit \textit{npm run dev} wird eine lokale Instanz erstellt, welche mit dem Backend kommunizieren kann.
 \chapter{Fazit}
 
 \begin{appendices}
