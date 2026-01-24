@@ -113,10 +113,9 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
 
 \maketitle
 \tableofcontents
-\pagenumbering{arabic}
-
-
+\pagenumbering{roman}
 \chapter{Einleitung}
+\pagenumbering{arabic}
     Ein durchaus häufig erstelltes Projekt in der Softwareentwicklung ist eine Todo-App.
     Anhand solcher können grundlegende Kenntnisse der Entwickler zur jeweiligen Umgebung gezeigt werden.
     Im Verlauf dieser Arbeit wird der Entwicklungsprozess einer solchen App im Serverless Kontext mit einem React Frontend erläutert.\\
@@ -227,7 +226,12 @@ export class ApiGatewayConstruct extends Construct {
     Sie kann mittels Preview oder mittels OpenAPI-Generator in IntelliJ betrachtet werden.
     Um best practices zu Folgen ist Cors aktiviert. 
     Zugriff auf die API kann von http://localhost:5173 und der Frontend-URL erfolgen.
-    Alle Endpunkte sind zudem mittels eines \textit{Cognito Authorizers} geschützt.
+    Alle Endpunkte sind zudem mittels eines \textit{Cognito Authorizers} geschützt.\\
+    Es bestehen Endpunkte für alle CRUD-Funktionen für die Listen- und die Todotabelle.
+    Einzelne Todos und Listen können über ein \textit{POST-Request} über die Endpunkte /ToDo und /List erstellt werden.
+    Für \textit{UPDATE}, \textit{DELETE} und \textit{GET} wird die id des Todos oder der Liste als \textit{path parameter} benötigt.
+    Auch besteht mit dem /addToList-Endpunkt eine Methode um ein Todo einer Liste hinzuzufügen.
+    Eine Vielzahl an \textit{OPTIONS}-Schnittstellen existieren für Cors-Preflight.
     \section{Logik}
     Zum publishen von Lambdafunktionen, welche die Logik beinhalten, wird das Construct \textit{NodeJsFunktion} genutzt.
     Dieses erlaubt bundeling von Code und Runtime-Definitionen.
@@ -236,6 +240,7 @@ export class ApiGatewayConstruct extends Construct {
     Die Funktionen erhalten eine Rolle mit sehr großzügigen Rechten, diese müssen im Entwicklungsverlauf noch beschränkt werden.\\
     Die Logik ist auch für entsprechende Datenbankoperationen zuständig.
     Grund hierfür ist die NoSQL Datenbank DynamoDB.\@
+    Um beim DELETE eines Todos dieses aus allen Listen zu entfernen muss eine Transaktion erfolgen, welche das Todo aus dem Todo-Table löscht und in dem List-Table alle Listen durchgeht, in welchen das Todo sich befindet, um die Referenz aus diesen zu löschen.
 
 \section{Beispiel: attach}
 \begin{figure}[!h]
