@@ -100,7 +100,7 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
         \includegraphics[height=1.25cm]{LOGO_HSZG_SUBLINE_GRANIT_ICON_ONLY.png}%
     }
     \fancyfoot[L]{\sffamily Kaulfers}
-    \fancyfoot[C]{\sffamily \arbeitstyp}
+    \fancyfoot[C]{\sffamily \arbeitstyp\ WE3}
     \fancyfoot[R]{\sffamily\thepage}
     \renewcommand{\footrulewidth}{0.4pt}
 }
@@ -211,7 +211,7 @@ export class ApiGatewayConstruct extends Construct {
     Auch in der AWS Konsole (dem GUI von AWS) kann auf der Seite von Cloudformation das Construct mit dem Error genauer betrachtet werden.
     Dort ist von AWS auch ein vermutlicher \textit{root cause} angegeben.
 
-    \section{Endpunkte}
+\section{Endpunkte}
     Alle Funktionen dieser Anwendung sind mit eigenen Endpunkten im Backend ausführbar.
     Da die gesamte Logik auf Lambdafunktionen basiert erfolgen Lambdaintegrationen.
     Mittels dieser kann der Rückgabewert der Lambdafunktion direkt als Rückgabewert des Api-Endpunkts verwendet werden.
@@ -232,7 +232,7 @@ export class ApiGatewayConstruct extends Construct {
     Für \textit{UPDATE}, \textit{DELETE} und \textit{GET} wird die id des Todos oder der Liste als \textit{path parameter} benötigt.
     Auch besteht mit dem /addToList-Endpunkt eine Methode um ein Todo einer Liste hinzuzufügen.
     Eine Vielzahl an \textit{OPTIONS}-Schnittstellen existieren für Cors-Preflight.
-    \section{Logik}
+\section{Logik}
     Zum publishen von Lambdafunktionen, welche die Logik beinhalten, wird das Construct \textit{NodeJsFunktion} genutzt.
     Dieses erlaubt bundeling von Code und Runtime-Definitionen.
     Auch besteht die Möglichkeit eine NodeJsFunktion direkt mit Typescript in Aws zu integrieren, hierbei kann die Kompilierung sowohl mittels Ressourcen in der Cloud, als auch lokal, ausgeführt werden.
@@ -243,10 +243,41 @@ export class ApiGatewayConstruct extends Construct {
     Um beim DELETE eines Todos dieses aus allen Listen zu entfernen muss eine Transaktion erfolgen, welche das Todo aus dem Todo-Table löscht und in dem List-Table alle Listen durchgeht, in welchen das Todo sich befindet, um die Referenz aus diesen zu löschen.
 
 \section{Beispiel: attach}
+    Der genauere Ablauf ist anhand eines Beispiels am verständlichsten.
+    Dieser ist in der untenstehenden Grafik\ \ref{gph:attach} nochmals visuell erkenntlich.
+    Das Szenario stellt hier bereit, dass der Nutzer angemeldet ist und sowohl ein Todo, als auch eine Liste, vorhanden sind.
+    Nun möchte der Nutzer das Todo in eine Liste einfügen.
+    Dazu klickt er im Frontend auf den entsprechenden Button.
+    Erstellt wird ein Post-Request auf /ToDo/addToList mit einem Body und einem Header.
+    Im Header befindet sich ein JWT-Token als Authorization, während im Body die Id der Liste und die Id des Todos gelistet sind.
+    Der Request wird zuerst mittels Cors geprüft über ein Options-Request, ob die Origin-Adresse valide ist.
+    Hier ist sie es.
+    Anschließend wird der tatsächliche Post-Request an ApiGateway übergeben.
+    An diesem ApiGateway ist ein Authorizer des Services Cognito angebracht.
+    Dieser Authorizer überprüft das JWT-Token aus dem Header und stellt fest, dass der Nutzer ein angemeldeter Nutzer aus dem Userpool ist.
+    Daraufhin triggered ApiGateway seine integrierte Lambdafunktion an diesem Endpunkt.
+    Die Funktion liest den Body aus und stellt fest, dass beide Werte richtig übergeben wurden.
+    In der Funktion wird eine Transaktion mittels des AWS Softwaredevelopmentkits (SDK) für DynamoDB erstellt.
+    Darin werden die Ids in die entsprechenden Todos und Listen als Abhängigkeit eingetragen.
+    Nachdem dies erfolgreich geschah wird von der Lambdafunktion eine Erfolgsnachricht zurückgegeben.
+    Da die Lambdafunktion eine Lambdaintegration hat, wird das Resultat der Funktion so über ApiGateway an das Frontend weitergegeben, ohne noch einmal von ApiGateway überarbeitet zu werden.
+    Das ist der Grund dafür, dass die Lambdas Headers mit Cors im Rückgabewert haben. 
 \begin{figure}[!h]
-\includegraphics[height=10cm]{ToDoAppArchitektur.drawio.png}\label{gph:attach}
-\caption{Ablauf des Hinzufügens eines Todos zu einer Liste}
+    \includegraphics[height=10cm]{ToDoAppArchitektur.drawio.png}\label{gph:attach}
+    \caption{Ablauf des Hinzufügens eines Todos zu einer Liste}
 \end{figure}
+\section{Tests}
+    In dem Projekt existieren eine Vielzahl an verschiedenen Tests.
+    Dazu gehören Unittests und Integrationstests auf Lambda-Ebene, Integrationstests auf CDK-Ebene (mit verschiedenen Tools) und Snapshottests.
+    Leider sind nur die Unittests und Integrationstests auf Lambda-Ebene aktuell funktionsfähig.
+    Bei diesen handelt es sich um Tests mit dem JS-Testframework Jest.
+    Die Tests überprüfen, ob eine Todo richtig geupdatet wird.
+    Sprich den Fall eines Put-Requests auf den Endpunkt \texttt{/Todo/\{id\}} mit einer entsprechenden Id.
+    Auch gibt es Tests für Post auf ein neues Todo.
+
+\section{Frontend}
+    
+
 
 \chapter{Building}
     Da das Projekt für AWS ausgelegt ist, ist lokales Building nicht empfehlenswert.
@@ -265,6 +296,4 @@ export class ApiGatewayConstruct extends Construct {
     Mit \textit{npm run dev} wird eine lokale Instanz erstellt, welche mit dem Backend kommunizieren kann.
 \chapter{Fazit}
 
-\begin{appendices}
-\end{appendices}
 \printbibliography\end{document}
