@@ -290,7 +290,16 @@ export class ApiGatewayConstruct extends Construct {
     Das Frontend kann ohne ein eigenes Backend verwendet werden.
     Hierfür müssen die Environment-Variablen gesetzt werden.
     Diese sind: \texttt{VITE\_API\_URL} und \texttt{VITE\_REDIRECT\_URL}.
-    Mit \textit{npm run dev} wird eine lokale Instanz erstellt, welche mit dem Backend kommunizieren kann.
+    Mit \textit{npm run dev} wird eine lokale Instanz erstellt, welche mit dem Backend kommunizieren kann.\\
+    Beide Projekte haben readme-Dateien in ihrer Root, aus welchen die benötigten Befehle ersichtlich werden.
 \chapter{Fazit}
+    Bei dem Projekt handelt es sich um ein Übungsprojekt für erste Kontakte mit AWS.\@
+    Deshalb hat es noch einige kleinere Logikprobleme.
+    Vor allem ist ersichtlich, dass nicht alle Lambdafunktionen gleichermaßen ausgereift sind.\\
+    Diese Probleme können in späteren Interationen über dieses Projekt beseitigt werden.
+    Auch können neue Tests für die API eingeführt werden.
+    Hier muss jedoch berücksichtigt werden, dass aufgrund der JWT-Tokenverfizierung ein Mocking eines Cognito-Userpools stattfinden muss.
+    Ein solcher Mock stellt eventuelle Hindernisse dar, da dieser nicht ausreichend Dokumentiert ist.
+    Auch sind die verwendeten Testbibliotheken teils noch in der Alpha-Phase, was zu möglichen Fehler führen kann, falls die Bibliothek geupdatet wird.
 
 \printbibliography\end{document}
