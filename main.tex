@@ -25,7 +25,7 @@
   comment=[l]{//},
   morecomment=[s]{/*}{*/},
   morestring=[b]',
-  morestring=[b]",
+  morestring=[b]{"},
   morestring=[b]`,
   keywordstyle=\color{blue}\bfseries,
   identifierstyle=\color{black},
@@ -125,12 +125,11 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Um den genauen Aufbau dieser Anwendung zu verstehen, muss der Leser vorkenntnisse im Bereich des \textit{Cloud Computings} und \textit{Serverless} haben. 
     Serverless bezieht sich auf Softwareanwendungen, welche in der Cloud veröffentlicht werden, der Entwickler sich jedoch nicht um den tieferen Aufbau des Servers kümmern muss.
     So ist der Begriff Serverless durchaus irreführend.
-    Server existieren, werden jedoch von dem Hyperscaler, in diesem Fall AWS, verwaltet.
+    Server existieren, werden jedoch von dem Cloud-Anbieter, in diesem Fall AWS, verwaltet.
     Viele Service wie AWS Lambda oder AWS DynamoDB fallen in die Kategorie von Serverless.
 
 \chapter{Tech Stack}
-\section{Backend}
-    Das Backend besteht vollständig aus AWS Servicen.
+    Das Backend besteht vollständig aus AWS Services.
     Um genau zu sein ApiGateway, Lambda, DynamoDB und Cognito.
     Diese haben jeweils eigene Aufgaben.
     So ist ApiGateway verantwortlich dafür, eine RestAPI zur Verfügung zu stellen.
@@ -143,13 +142,12 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Für Persistenz sorgt DynamoDB, die NoSQL Datenbank von AWS.\@
 \section{Frontend}
     Um mit dem Backend zu interagieren wird ein React Frontend verwendet.
-    Mit React können Single Page Applications (SPAs) erstellt werden.
     Eine solche SPA besteht aus mehreren Komponenten, welche individuell, voneinander unabhängig ausgeführt werden können.
-    Dieses nutzt für styling \textit{Tailwindcss} und \textit{MUI}.\@
-    Tailwind stellt eine Sammlung an css Code da, welcher im Code einfach durch HTML Klassen genutzt werden kann.
+    Dieses nutzt für Styling \textit{Tailwind CSS} und \textit{MUI}.\@
+    Für Nutzerverifizierung im Frontend wird \textit{react OIDC} genutzt.
     MUI hingegen ist eine Komponenten Bibliothek für React. 
     Zusammen sorgen MUI und Tailwind für ein anschauliches Erscheinungsbild.\\
-    Für Nutzerverifizierung im Frontend wird \textit{react oidc} genutzt.
+    Für Nutzerverifizierung im Frontend wird \textit{react OIDC} genutzt.
     Gemeinsam mit einem von AWS bereitgestellten Login-Bildschirm sorgt diese Bibliothek für eine Absicherung der Anwendung.
 \section{Entwicklungsumgebung}
     Die gesamte Anwendung wurde im Umfeld von \textit{IntelliJ IDEA} erstellt.
@@ -169,7 +167,7 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Auch die Listen haben einen Verweis auf alle Todos, welche sich in dieser Liste befinden.
     Listen und Todos haben Methoden, um diese mit neuen Werten zu überschreiben.
     Auch besteht die Möglichkeit sie zu löschen.
-    Man kann einzelne Parameter Updaten, hier ist der Verweis auf die jeweilige andere Liste jedoch nicht funktional.
+    Die Entwicklung fand in zwei eigenständigen Projekten statt – dem Backend und dem Frontend.
     Das liegt daran, dass es sich bei der Datenbank nicht um eine relationale Datenbank handelt.
     Entsprechende Logik zu den Relationen muss somit in der Logik eingebaut werden.
 \chapter{Implementierung}
@@ -179,8 +177,8 @@ Hochschule Zittau/Görlitz \\ Fakultät Elektrotechnik und Informatik
     Das Backend besteht aus einem AWS CDK Projekt.
     In diesem werden verschiedene \textit{Constructs} verwendet.
     Ein Construct definiert den Rahmen in welchem eine Komponente verwendet wird und ermöglicht so Objektorientiert Programmierung (OOP).
-    In Aws gibt es 3 Level von Constructs, nämlich L1, L2 und L3.
-    Diese definieren die Herkunft und Komplexität des Constructs.
+    Das untenstehende Construct für ApiGateway ist ein in diesem Projekt verwendetes L3 Construct, in dem die verschiedenen Endpunkte, Definitionen für SwaggerIO und Integrationen (Integrations) definiert sind.\\
+    So hat ApiGateway ohne IAM Rollen nicht die nötigen Rechte, um die Lambdafunktion mit der entsprechenden Logik auszuführen.
     Die grundlegende Version sind L1 Constructs, diese stellen eins zu eins ein Abbild der Konfiguration für Cloudformation da.
     Hingegen sind L2 Ressourcen bereits angepasst von AWS, um sinnvoll und ohne zu viel Arbeit verwendet werden zu können.
     Mit L3 Ressourcen werden mehrere Ressourcen erstellt, welche sinnvoll miteinander interagieren\footfullcite{aws_cdk_constructs}.
@@ -205,7 +203,7 @@ export class ApiGatewayConstruct extends Construct {
     \end{figure}\\
     Viele dieser Constructs stellt AWS selber zur Verfügung, jedoch kann der Nutzer eigene erstellen. 
     Dies geschieht, indem eine Klasse mit der Klasse \textit{Construct} erweitert wird.
-    Mittels Benennung über den Parameter \textit{id} lässt sich ein solches Construct leichter Debuggen.
+    Da die gesamte Logik auf Lambda-Funktionen basiert, erfolgen Lambda-Integrationen.
     So sind zusammenhänge besser ersichtlich, falls es während des Deploys zu einem Error kommt.
     Als Error wird in der Konsole das verantwortliche Construct ausgegeben.
     Auch in der AWS Konsole (dem GUI von AWS) kann auf der Seite von Cloudformation das Construct mit dem Error genauer betrachtet werden.
@@ -218,12 +216,12 @@ export class ApiGatewayConstruct extends Construct {
     Ein öffentlich ausführbarer Endpunkt muss innerhalb von AWS als eine \textit{Stage} erstellt werden.
     Erst dann kann er über eine URL aufgerufen werden.
     Innerhalb des Codes ist dies durch das Construct \textit{Deployment} geregelt.
-    In diesem wird die Stage \textit{prod} erstellt.
+    Es bestehen Endpunkte für alle CRUD-Funktionen für die Listen- und die To-Do-Tabelle.
     Alle Kommunikation mit diesem Endpunkt gelingt nun über \texttt{Basis-URL + '/prod'}.
     Mittels \textit{Model} werden die erlaubten Rückgabewerte und die Dokumentation definiert.
     Diese kann anschließend innerhalb der AWS-Konsole als SwaggerIO JSON exportiert werden.
     Eine solche Datei liegt in der Root des Projekts.
-    Sie kann mittels Preview oder mittels OpenAPI-Generator in IntelliJ betrachtet werden.
+    Dieses erlaubt Bundling von Code und Runtime-Definitionen.
     Um best practices zu Folgen ist Cors aktiviert. 
     Zugriff auf die API kann von http://localhost:5173 und der Frontend-URL erfolgen.
     Alle Endpunkte sind zudem mittels eines \textit{Cognito Authorizers} geschützt.\\
@@ -241,10 +239,9 @@ export class ApiGatewayConstruct extends Construct {
     Die Logik ist auch für entsprechende Datenbankoperationen zuständig.
     Grund hierfür ist die NoSQL Datenbank DynamoDB.\@
     Um beim DELETE eines Todos dieses aus allen Listen zu entfernen muss eine Transaktion erfolgen, welche das Todo aus dem Todo-Table löscht und in dem List-Table alle Listen durchgeht, in welchen das Todo sich befindet, um die Referenz aus diesen zu löschen.
-
-\section{Beispiel: attach}
+    Dieser Authorizer überprüft das JWT-Token aus dem Header und stellt fest, dass der Nutzer ein angemeldeter Nutzer aus dem Benutzerpool ist.
     Der genauere Ablauf ist anhand eines Beispiels am verständlichsten.
-    Dieser ist in der untenstehenden Grafik\ \ref{gph:attach} nochmals visuell erkenntlich.
+    In der Funktion wird eine Transaktion mittels des AWS Software Development Kits (SDK) für DynamoDB erstellt.
     Das Szenario stellt hier bereit, dass der Nutzer angemeldet ist und sowohl ein Todo, als auch eine Liste, vorhanden sind.
     Nun möchte der Nutzer das Todo in eine Liste einfügen.
     Dazu klickt er im Frontend auf den entsprechenden Button.
@@ -276,7 +273,7 @@ export class ApiGatewayConstruct extends Construct {
     Auch gibt es Tests für Post auf ein neues Todo.
 
 \section{Frontend}
-    
+
 
 
 \chapter{Building}
