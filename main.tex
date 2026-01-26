@@ -273,9 +273,33 @@ export class ApiGatewayConstruct extends Construct {
     Auch gibt es Tests für Post auf ein neues Todo.
 
 \section{Frontend}
+    Das Frontend besteht aus zwei Webseiten, der Anwendung und einer externen Login-Seite.\\
+    Die externe Login-Seite ist innerhalb des CDK-Stacks, im Cognito-Construct, definiert.
+    Sie erlaubt es neue Nutzer zu erstellen und mittels eines dieser Nutzer sich anzumelden.\\
+    Die Anwendung implementiert die Endpunkte des Backends und nutzt das Token der Loginseite, um Nutzer am ApiGateway-Endpunkt zu verifizieren.
+    Die Umsetzung ist anhand der Graphik\ \ref{code:auth} ersichtlich.
+    \begin{figure}[!h]
+        \begin{lstlisting}[language=typescript, numbers=left, frame=single, basicstyle=\small\ttfamily]
+import React from "react";
+import App from "./App";
+import {AuthProvider} from "react-oidc-context";
+import {BrowserRouter} from "react-router-dom";
 
+const root = ReactDOM.createRoot(document.getElementById("root")!);
 
-
+root.render(
+    <React.StrictMode>
+        <AuthProvider {...cognitoAuthConfig}>
+            <BrowserRouter>
+                <App/>
+            </BrowserRouter>
+        </AuthProvider>
+    </React.StrictMode>
+);
+        \end{lstlisting}
+        
+        \caption{Geschützte Anwendung mit react OIDC}\label{code:auth}    
+    \end{figure}\\    
 \chapter{Building}
     Da das Projekt für AWS ausgelegt ist, ist lokales Building nicht empfehlenswert.
     Was ist benötigt, um dieses Projekt zu nutzen?\\
@@ -284,7 +308,7 @@ export class ApiGatewayConstruct extends Construct {
     Jedoch gelangt man vorerst in den Root-Account.
     Es ist zu empfehlen, einen Nutzeraccount beim Service IAM zu erstellen.
     Über diesen besteht die Möglichkeit, Access-Token für die CLI zu kreieren.
-    Mittels des Tokens kann über das \textit{AWS CLI Tool} (download via npm) Zugriff auf AWS Ressourcen erstellt werden.\\
+    Mittels des Tokens kann über das \textit{AWS CLI Tool} (download via npm) Zugriff auf AWS Ressourcen erlaubt werden.\\
     Da mit AWS CDK gearbeitet wird muss auch dieses als CLI Tool installiert werden.
     Das Kommando \textit{cdk deploy} kann anschließend genutzt werden, um den Stack auf AWS zu deployen.\\
     Das Frontend kann ohne ein eigenes Backend verwendet werden.
